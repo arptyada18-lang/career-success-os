@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en" data-theme="midnight">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#090d18" />
+  <title>Career & Success OS</title>
+  <meta name="description" content="A personal career, productivity, learning and success operating system." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark">CS</div>
+        <div><strong>Career & Success OS</strong><span>Build. Track. Level up.</span></div>
+      </div>
+
+      <nav class="nav" id="nav">
+        <button class="nav-item active" data-view="dashboard">◈ <span>Dashboard</span></button>
+        <button class="nav-item" data-view="today">✓ <span>Today</span></button>
+        <button class="nav-item" data-view="goals">◎ <span>Goals</span></button>
+        <button class="nav-item" data-view="skills">⌁ <span>Skills</span></button>
+        <button class="nav-item" data-view="projects">▦ <span>Projects</span></button>
+        <button class="nav-item" data-view="learning">▤ <span>Learning</span></button>
+        <button class="nav-item" data-view="study">▣ <span>Study</span></button>
+        <button class="nav-item" data-view="internships">⌕ <span>Internships</span></button>
+        <button class="nav-item" data-view="clients">◆ <span>Clients</span></button>
+        <button class="nav-item" data-view="content">▶ <span>Content</span></button>
+        <button class="nav-item" data-view="linkedin">in <span>LinkedIn</span></button>
+        <button class="nav-item" data-view="habits">↻ <span>Habits</span></button>
+        <button class="nav-item" data-view="achievements">★ <span>Achievements</span></button>
+        <button class="nav-item" data-view="analytics">⌁ <span>Analytics</span></button>
+        <button class="nav-item" data-view="reviews">≋ <span>Reviews</span></button>
+        <button class="nav-item" data-view="settings">⚙ <span>Settings</span></button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="mini-level">
+          <span id="sidebarLevel">Level 1</span>
+          <div class="xp-bar"><i id="sidebarXpBar"></i></div>
+          <small id="sidebarXpText">0 / 100 XP</small>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="top-left">
+          <button class="icon-btn mobile-only" id="menuBtn" aria-label="Open menu">☰</button>
+          <div>
+            <p class="eyebrow" id="todayLabel"></p>
+            <h1 id="viewTitle">Command Center</h1>
+          </div>
+        </div>
+        <div class="top-actions">
+          <label class="search">
+            <span>⌕</span>
+            <input id="globalSearch" placeholder="Search tasks, goals, projects..." />
+          </label>
+          <button class="pill" id="quickAddBtn">＋ Quick Add</button>
+          <button class="profile-chip" id="profileBtn"><span id="profileInitials">AY</span><b id="profileName">Arpit</b></button>
+        </div>
+      </header>
+
+      <section id="viewRoot" class="view-root"></section>
+    </main>
+  </div>
+
+  <div class="mobile-nav">
+    <button data-view="dashboard" class="active">◈<span>Home</span></button>
+    <button data-view="today">✓<span>Today</span></button>
+    <button data-view="goals">◎<span>Goals</span></button>
+    <button data-view="analytics">⌁<span>Stats</span></button>
+    <button id="mobileMore">☰<span>More</span></button>
+  </div>
+
+  <dialog id="modal" class="modal">
+    <form method="dialog" class="modal-card" id="modalForm">
+      <div class="modal-head">
+        <div><p class="eyebrow" id="modalEyebrow">Add item</p><h2 id="modalTitle">New item</h2></div>
+        <button class="icon-btn" value="cancel" aria-label="Close">×</button>
+      </div>
+      <div id="modalBody" class="modal-body"></div>
+      <div class="modal-actions">
+        <button class="btn ghost" value="cancel">Cancel</button>
+        <button class="btn primary" id="modalSave" value="default">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
