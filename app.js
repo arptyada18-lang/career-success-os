@@ -335,7 +335,8 @@ function getCalendarDate(){
   const parts=(state.calendarCursor||new Date().toISOString().slice(0,7)).split("-").map(Number);
   calendarDate=new Date(parts[0],parts[1]-1,1); return calendarDate;
 }
-function shiftCalendar(n){const d=getCalendarDate();calendarDate=new Date(d.getFullYear(),d.getMonth()+n,1);state.calendarCursor=calendarDate.toISOString().slice(0,7);save();render()}
+function monthKey(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")}
+function shiftCalendar(n){const d=getCalendarDate();calendarDate=new Date(d.getFullYear(),d.getMonth()+n,1);state.calendarCursor=monthKey(calendarDate);save();render()}
 function calendarView(){
   const d=getCalendarDate(),y=d.getFullYear(),m=d.getMonth();
   const start=new Date(y,m,1),end=new Date(y,m+1,0),offset=start.getDay(),days=end.getDate();
@@ -407,7 +408,7 @@ function openCommandPalette(){
   wrap.innerHTML='<div class="command-panel"><input class="command-input" id="commandInput" placeholder="Type a command or view…"><div class="command-results" id="commandResults"></div></div>';
   document.body.appendChild(wrap);
   const input=document.getElementById("commandInput");
-  function paint(q=""){const items=commandItems().filter(x=>(x[0]+" "+x[1]).toLowerCase().includes(q.toLowerCase()));document.getElementById("commandResults").innerHTML=items.map((x,i)=>'<button class="command-item" data-command="'+commandItems().indexOf(x)+'"><span><b>'+esc(x[0])+'</b><br><small>'+esc(x[1])+'</small></span><small>↵</small></button>').join("")||empty("No command found")}
+  function paint(q=""){const all=commandItems().map((x,i)=>({x,i}));const items=all.filter(o=>(o.x[0]+" "+o.x[1]).toLowerCase().includes(q.toLowerCase()));document.getElementById("commandResults").innerHTML=items.map(o=>'<button class="command-item" data-command="'+o.i+'"><span><b>'+esc(o.x[0])+'</b><br><small>'+esc(o.x[1])+'</small></span><small>↵</small></button>').join("")||empty("No command found")}
   paint();input.focus();input.oninput=()=>paint(input.value);
   wrap.onclick=e=>{if(e.target===wrap)closeCommandPalette();const b=e.target.closest("[data-command]");if(b){const item=commandItems()[+b.dataset.command];closeCommandPalette();item[2]()}};
 }
