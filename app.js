@@ -224,11 +224,11 @@ function table(headers,rows){
 }
 function tag(s){return `<span class="tag">${esc(s)}</span>`}
 function render(){
- const titles={dashboard:"Command Center",today:"Today",goals:"Career Goals",skills:"Skills",projects:"Project Launchpad",learning:"Learning Roadmap",study:"Study",internships:"Internships",clients:"Client CRM",content:"Creator Tracker",linkedin:"LinkedIn Growth",habits:"Habits",achievements:"Achievements",analytics:"Analytics",reviews:"Reviews",settings:"Settings"};
+ const titles={dashboard:"Command Center",today:"Today",goals:"Career Goals",skills:"Skills",projects:"Project Launchpad",learning:"Learning Roadmap",study:"Study",internships:"Internships",clients:"Client CRM",content:"Creator Tracker",linkedin:"LinkedIn Growth",habits:"Habits",achievements:"Achievements",analytics:"Analytics",calendar:"Calendar",focus:"Focus Mode",badges:"Badges",reviews:"Reviews",settings:"Settings"};
  document.getElementById("viewTitle").textContent=titles[currentView]||"Career & Success OS";
  document.getElementById("profileName").textContent=state.profile.name.split(" ")[0];
  document.getElementById("profileInitials").textContent=state.profile.name.split(" ").map(x=>x[0]).join("").slice(0,2).toUpperCase();
- const map={dashboard, today:todayView, goals:goalsView, skills:skillsView, projects:projectsView,learning:learningView,study:studyView,internships:internshipsView,clients:clientsView,content:contentView,linkedin:linkedinView,habits:habitsView,achievements:achievementsView,analytics:analyticsView,reviews:reviewsView,settings:settingsView};
+ const map={dashboard, today:todayView, goals:goalsView, skills:skillsView, projects:projectsView,learning:learningView,study:studyView,internships:internshipsView,clients:clientsView,content:contentView,linkedin:linkedinView,habits:habitsView,achievements:achievementsView,analytics:analyticsView,calendar:calendarView,focus:focusView,badges:badgesView,reviews:reviewsView,settings:settingsView};
  document.getElementById("viewRoot").innerHTML=(map[currentView]||dashboard)();
  updateLevelUI();
 }
@@ -247,7 +247,7 @@ function openModal(title,sub,html,handler){titleEl.textContent=title;eyebrow.tex
 form.addEventListener("submit",e=>{e.preventDefault();if(modalHandler){modalHandler(new FormData(form));modal.close();modalHandler=null}})
 function field(label,name,type="text",value="",extra=""){return `<div class="field"><label>${label}</label><input name="${name}" type="${type}" value="${esc(value)}" ${extra}></div>`}
 function selectField(label,name,opts){return `<div class="field"><label>${label}</label><select name="${name}">${opts.map(x=>`<option>${esc(x)}</option>`).join("")}</select></div>`}
-function openTaskModal(){openModal("New task","Execution",field("Task","title","text","","required")+selectField("Category","category",["Project","Study","Career","Client","Content","Personal"])+selectField("Priority","priority",["High","Medium","Low"]),fd=>{state.tasks.unshift({id:uid(),title:fd.get("title"),category:fd.get("category"),priority:fd.get("priority"),done:false});save();render();toast("Task added")})}
+function openTaskModal(){openModal("New task","Execution",field("Task","title","text","","required")+selectField("Category","category",["Project","Study","Career","Client","Content","Personal"])+selectField("Priority","priority",["High","Medium","Low"])+field("Due date","due","date"),fd=>{state.tasks.unshift({id:uid(),title:fd.get("title"),category:fd.get("category"),priority:fd.get("priority"),due:fd.get("due")||"",done:false});save();render();toast("Task added")})}
 function openGoalModal(){openModal("New goal","Direction",field("Goal","title","text","","required")+field("Deadline","deadline","date")+field("Starting progress %","progress","number","0",'min="0" max="100"'),fd=>{state.goals.push({id:uid(),title:fd.get("title"),deadline:fd.get("deadline")||"No deadline",progress:+fd.get("progress")||0});save();render();toast("Goal added")})}
 function openSkillModal(){openModal("New skill","Capability",field("Skill name","name","text","","required")+field("Current level %","level","number","10",'min="0" max="100"'),fd=>{state.skills.push({id:uid(),name:fd.get("name"),level:+fd.get("level")||0});save();render();toast("Skill added")})}
 function openProjectModal(){openModal("New project","Proof of work",field("Project name","name","text","","required")+selectField("Status","status",["Idea","Planning","Building","Live","Complete"])+field("Progress %","progress","number","0",'min="0" max="100"')+field("Live / GitHub link","link","url"),fd=>{state.projects.unshift({id:uid(),name:fd.get("name"),status:fd.get("status"),progress:+fd.get("progress")||0,link:fd.get("link")||""});save();render();toast("Project added")})}
@@ -273,4 +273,151 @@ document.getElementById("globalSearch").addEventListener("input",e=>{
  const hits=pools.filter(x=>x.title.toLowerCase().includes(q));
  document.getElementById("viewRoot").innerHTML=sectionTitle("Search results",`Matches for “${esc(q)}”`)+`<div class="card search-results">${hits.length?hits.map(x=>`<div class="search-result"><b>${esc(x.title)}</b><small> • ${x.type}</small></div>`).join(""):empty("No matching items")}</div>`;
 });
+
+// ===== Advanced V2 =====
+function ensureAdvancedState(){
+  state.tasks=(state.tasks||[]).map(t=>({...t,due:t.due||""}));
+  state.focus=state.focus||{minutes:25,sessions:0,totalMinutes:0,lastCompleted:""};
+  state.calendarCursor=state.calendarCursor||new Date().toISOString().slice(0,7);
+  state.dismissedNotifications=state.dismissedNotifications||[];
+  save();
+}
+function dateOnly(v){if(!v)return null;const d=new Date(v+"T00:00:00");return Number.isNaN(d.getTime())?null:d}
+function daysFromToday(v){
+  const d=dateOnly(v); if(!d)return null;
+  const now=new Date(); const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  return Math.round((d-today)/86400000);
+}
+function deadlineItems(){
+  const items=[];
+  (state.tasks||[]).filter(t=>t.due&&!t.done).forEach(t=>items.push({type:"Task",title:t.title,date:t.due,id:"task-"+t.id}));
+  (state.goals||[]).filter(g=>g.deadline&&/^\d{4}-\d{2}-\d{2}$/.test(g.deadline)&&g.progress<100).forEach(g=>items.push({type:"Goal",title:g.title,date:g.deadline,id:"goal-"+g.id}));
+  return items.sort((a,b)=>a.date.localeCompare(b.date));
+}
+function getNotifications(){
+  const notes=[];
+  deadlineItems().forEach(x=>{
+    const d=daysFromToday(x.date);
+    if(d<0) notes.push({id:"over-"+x.id,title:x.type+" overdue",text:x.title+" • "+Math.abs(d)+" day(s) late",tone:"danger"});
+    else if(d===0) notes.push({id:"today-"+x.id,title:x.type+" due today",text:x.title,tone:"warn"});
+    else if(d<=3) notes.push({id:"soon-"+x.id,title:"Deadline approaching",text:x.title+" • "+d+" day(s) left",tone:"warn"});
+  });
+  const pendingHabits=(state.habits||[]).filter(h=>!h.doneToday);
+  if(pendingHabits.length) notes.push({id:"habits",title:"Habits still pending",text:pendingHabits.length+" habit(s) left today",tone:""});
+  const active=notes.filter(n=>!(state.dismissedNotifications||[]).includes(n.id));
+  return active;
+}
+function updateAdvancedHeader(){
+  const n=getNotifications().length;
+  const el=document.getElementById("notificationCount");
+  if(el){el.textContent=n;el.dataset.empty=n===0?"true":"false";}
+}
+function openNotifications(){
+  const notes=getNotifications();
+  openModal("Notifications","Deadlines & momentum",
+    '<div class="notification-list">'+(notes.length?notes.map(n=>'<div class="notification-item '+n.tone+'"><span class="notification-dot"></span><div><strong>'+esc(n.title)+'</strong><small>'+esc(n.text)+'</small></div></div>').join(""):empty("No active notifications. Suspiciously peaceful."))+'</div>',
+    ()=>{}
+  );
+  document.getElementById("modalSave").style.display="none";
+  modal.addEventListener("close",()=>document.getElementById("modalSave").style.display="",{once:true});
+}
+function upcomingStrip(){
+  const list=deadlineItems().slice(0,5);
+  if(!list.length)return "";
+  return '<div class="card" style="margin-top:18px"><div class="card-head"><div><p class="eyebrow">Deadline Radar</p><h3>What is coming next</h3></div><button class="btn ghost" onclick="navTo(\'calendar\')">Open calendar</button></div><div class="deadline-strip">'+list.map(x=>{const d=daysFromToday(x.date);const cls=d<0?"overdue":d<=3?"soon":"";return '<div class="deadline-chip '+cls+'"><strong>'+esc(x.title)+'</strong><small>'+esc(x.type)+' • '+esc(x.date)+(d===null?"":d<0?" • overdue":d===0?" • today":" • "+d+"d left")+'</small></div>'}).join("")+'</div></div>';
+}
+const baseDashboardV2=dashboard;
+dashboard=function(){return baseDashboardV2()+upcomingStrip()};
+
+let calendarDate=null;
+function getCalendarDate(){
+  if(calendarDate)return calendarDate;
+  const parts=(state.calendarCursor||new Date().toISOString().slice(0,7)).split("-").map(Number);
+  calendarDate=new Date(parts[0],parts[1]-1,1); return calendarDate;
+}
+function shiftCalendar(n){const d=getCalendarDate();calendarDate=new Date(d.getFullYear(),d.getMonth()+n,1);state.calendarCursor=calendarDate.toISOString().slice(0,7);save();render()}
+function calendarView(){
+  const d=getCalendarDate(),y=d.getFullYear(),m=d.getMonth();
+  const start=new Date(y,m,1),end=new Date(y,m+1,0),offset=start.getDay(),days=end.getDate();
+  const prevDays=new Date(y,m,0).getDate();
+  const events=deadlineItems();
+  const cells=[];
+  for(let i=0;i<42;i++){
+    let num,cellDate,muted=false;
+    if(i<offset){num=prevDays-offset+i+1;cellDate=new Date(y,m-1,num);muted=true}
+    else if(i>=offset+days){num=i-offset-days+1;cellDate=new Date(y,m+1,num);muted=true}
+    else{num=i-offset+1;cellDate=new Date(y,m,num)}
+    const iso=cellDate.getFullYear()+"-"+String(cellDate.getMonth()+1).padStart(2,"0")+"-"+String(cellDate.getDate()).padStart(2,"0");
+    const today=new Date();const todayIso=today.getFullYear()+"-"+String(today.getMonth()+1).padStart(2,"0")+"-"+String(today.getDate()).padStart(2,"0");
+    const es=events.filter(e=>e.date===iso);
+    cells.push('<div class="calendar-day '+(muted?"muted-day ":"")+(iso===todayIso?"today":"")+'"><span class="calendar-num">'+num+'</span>'+es.map(e=>'<span class="calendar-event '+e.type.toLowerCase()+'">'+esc(e.title)+'</span>').join("")+'</div>');
+  }
+  return sectionTitle("Calendar","Goals and task deadlines in one timeline.","＋ Add Task","openTaskModal()")+
+  '<div class="card calendar-shell"><div class="calendar-head"><button class="btn ghost" onclick="shiftCalendar(-1)">← Previous</button><div class="calendar-title">'+d.toLocaleDateString("en-IN",{month:"long",year:"numeric"})+'</div><button class="btn ghost" onclick="shiftCalendar(1)">Next →</button></div><div class="calendar-weekdays">'+["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(x=>"<span>"+x+"</span>").join("")+'</div><div class="calendar-grid">'+cells.join("")+'</div></div>';
+}
+
+let focusSeconds=25*60,focusRunning=false,focusInterval=null,focusPreset=25;
+function focusText(){const mm=String(Math.floor(focusSeconds/60)).padStart(2,"0"),ss=String(focusSeconds%60).padStart(2,"0");return mm+":"+ss}
+function focusView(){
+  const sessions=state.focus?.sessions||0,total=state.focus?.totalMinutes||0;
+  return sectionTitle("Focus Mode","Protect one block of attention from the rest of civilization.")+
+  '<div class="focus-layout"><div class="card focus-card"><div class="focus-orb"><div class="focus-orb-inner"><div><div class="focus-clock" id="focusClock">'+focusText()+'</div><div class="focus-status" id="focusStatus">'+(focusRunning?"Deep work active":"Ready when you are")+'</div></div></div></div><div class="focus-presets">'+[15,25,45,60].map(n=>'<button class="btn '+(focusPreset===n?"primary":"ghost")+'" onclick="setFocusPreset('+n+')">'+n+' min</button>').join("")+'</div><div class="hero-actions" style="justify-content:center"><button class="btn primary" onclick="startFocus()">▶ Start</button><button class="btn ghost" onclick="pauseFocus()">Ⅱ Pause</button><button class="btn ghost" onclick="resetFocus()">↺ Reset</button></div></div><div class="card"><div class="card-head"><div><p class="eyebrow">Focus Stats</p><h3>Deep-work record</h3></div></div><div class="mini-grid"><div class="mini-box"><strong>'+sessions+'</strong><span>Sessions completed</span></div><div class="mini-box"><strong>'+total+'</strong><span>Focused minutes</span></div></div><p class="muted" style="margin-top:18px">Completing a session earns +15 XP. Pick one task before starting and keep this timer boring. Boring is productive.</p><div class="list" style="margin-top:16px">'+(state.tasks||[]).filter(t=>!t.done).slice(0,4).map(t=>'<div class="list-item"><div class="list-main"><strong>'+esc(t.title)+'</strong><small>'+esc(t.category)+' • '+esc(t.priority)+'</small></div></div>').join("")+'</div></div></div>';
+}
+function refreshFocusDom(){const c=document.getElementById("focusClock"),s=document.getElementById("focusStatus");if(c)c.textContent=focusText();if(s)s.textContent=focusRunning?"Deep work active":"Paused"}
+function setFocusPreset(n){focusPreset=n;focusSeconds=n*60;focusRunning=false;if(focusInterval){clearInterval(focusInterval);focusInterval=null}render()}
+function startFocus(){if(focusRunning)return;focusRunning=true;refreshFocusDom();focusInterval=setInterval(()=>{focusSeconds--;refreshFocusDom();if(focusSeconds<=0){clearInterval(focusInterval);focusInterval=null;focusRunning=false;state.focus.sessions=(state.focus.sessions||0)+1;state.focus.totalMinutes=(state.focus.totalMinutes||0)+focusPreset;state.focus.lastCompleted=new Date().toISOString();state.xp+=15;focusSeconds=focusPreset*60;save();render();toast("Focus session complete • +15 XP")}},1000)}
+function pauseFocus(){focusRunning=false;if(focusInterval){clearInterval(focusInterval);focusInterval=null}refreshFocusDom()}
+function resetFocus(){pauseFocus();focusSeconds=focusPreset*60;refreshFocusDom()}
+
+const badgeDefs=[
+  {icon:"⚡",title:"First Momentum",desc:"Earn 50 total XP.",ok:()=>state.xp>=50},
+  {icon:"✓",title:"Execution Engine",desc:"Complete 5 tasks.",ok:()=>state.tasks.filter(t=>t.done).length>=5},
+  {icon:"◆",title:"Project Builder",desc:"Complete or launch 3 projects.",ok:()=>state.projects.filter(p=>p.progress>=100||p.status==="Live").length>=3},
+  {icon:"⌕",title:"Opportunity Hunter",desc:"Track 5 internship applications.",ok:()=>state.internships.length>=5},
+  {icon:"↻",title:"Consistency",desc:"Reach a 7-day habit streak.",ok:()=>Math.max(0,...state.habits.map(h=>h.streak||0))>=7},
+  {icon:"♛",title:"Level 5",desc:"Reach Level 5 in the OS.",ok:()=>levelInfo().level>=5},
+  {icon:"◉",title:"Deep Worker",desc:"Complete 5 focus sessions.",ok:()=>(state.focus?.sessions||0)>=5},
+  {icon:"◎",title:"Goal Crusher",desc:"Complete any career goal.",ok:()=>state.goals.some(g=>g.progress>=100)},
+  {icon:"★",title:"Proof Stack",desc:"Record 5 achievements.",ok:()=>state.achievements.length>=5}
+];
+function badgesView(){
+  const unlocked=badgeDefs.filter(b=>b.ok()).length;
+  return sectionTitle("Badges","Milestones that reward evidence, not wishful thinking.")+
+  '<div class="grid grid-4" style="margin-bottom:18px">'+stat("Unlocked",unlocked+"/"+badgeDefs.length,"Badges earned")+stat("Current level","Level "+levelInfo().level,"XP progression")+stat("Focus sessions",state.focus?.sessions||0,"Deep work completed")+stat("Best streak",Math.max(0,...state.habits.map(h=>h.streak||0)),"Habit consistency")+'</div><div class="badge-grid">'+badgeDefs.map(b=>'<div class="card badge-card '+(b.ok()?"unlocked":"locked")+'"><div class="badge-icon">'+b.icon+'</div><h3>'+esc(b.title)+'</h3><p>'+esc(b.desc)+'</p><span class="tag">'+(b.ok()?"Unlocked":"Locked")+'</span></div>').join("")+'</div>';
+}
+
+const baseAnalyticsV2=analyticsView;
+analyticsView=function(){
+  const base=baseAnalyticsV2();
+  const done=state.tasks.filter(t=>t.done).length,total=state.tasks.length;
+  const conversion=state.internships.length?Math.round(state.internships.filter(x=>["Interview","Offer"].includes(x.status)).length/state.internships.length*100):0;
+  const live=state.projects.filter(p=>p.status==="Live"||p.progress>=100).length;
+  const focus=state.focus?.totalMinutes||0;
+  return base+'<div class="card" style="margin-top:18px"><div class="card-head"><div><p class="eyebrow">Advanced Insights</p><h3>Career operating metrics</h3></div></div><div class="insight-grid"><div class="insight-card"><b>'+done+'/'+total+'</b><span>Task execution</span></div><div class="insight-card"><b>'+conversion+'%</b><span>Application → interview/offer signal</span></div><div class="insight-card"><b>'+live+'</b><span>Completed/live projects</span></div><div class="insight-card"><b>'+focus+'m</b><span>Recorded focus time</span></div><div class="insight-card"><b>'+getNotifications().length+'</b><span>Active alerts</span></div><div class="insight-card"><b>'+badgeDefs.filter(b=>b.ok()).length+'</b><span>Badges unlocked</span></div></div></div>';
+};
+
+function commandItems(){
+  return [
+    ["Dashboard","Go to command center",()=>navTo("dashboard")],["Today","Open today's tasks",()=>navTo("today")],["Goals","Open career goals",()=>navTo("goals")],["Skills","Open skills",()=>navTo("skills")],["Projects","Open project launchpad",()=>navTo("projects")],["Calendar","Open deadlines calendar",()=>navTo("calendar")],["Focus Mode","Start a focus session",()=>navTo("focus")],["Badges","Open achievements badges",()=>navTo("badges")],["Analytics","Open analytics",()=>navTo("analytics")],["Add Task","Create a new task",()=>openTaskModal()],["Add Goal","Create a new goal",()=>openGoalModal()],["Add Project","Create a project",()=>openProjectModal()]
+  ];
+}
+function openCommandPalette(){
+  closeCommandPalette();
+  const wrap=document.createElement("div");wrap.className="command-overlay";wrap.id="commandOverlay";
+  wrap.innerHTML='<div class="command-panel"><input class="command-input" id="commandInput" placeholder="Type a command or view…"><div class="command-results" id="commandResults"></div></div>';
+  document.body.appendChild(wrap);
+  const input=document.getElementById("commandInput");
+  function paint(q=""){const items=commandItems().filter(x=>(x[0]+" "+x[1]).toLowerCase().includes(q.toLowerCase()));document.getElementById("commandResults").innerHTML=items.map((x,i)=>'<button class="command-item" data-command="'+commandItems().indexOf(x)+'"><span><b>'+esc(x[0])+'</b><br><small>'+esc(x[1])+'</small></span><small>↵</small></button>').join("")||empty("No command found")}
+  paint();input.focus();input.oninput=()=>paint(input.value);
+  wrap.onclick=e=>{if(e.target===wrap)closeCommandPalette();const b=e.target.closest("[data-command]");if(b){const item=commandItems()[+b.dataset.command];closeCommandPalette();item[2]()}};
+}
+function closeCommandPalette(){document.getElementById("commandOverlay")?.remove()}
+document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();openCommandPalette()}if(e.key==="Escape")closeCommandPalette()});
+document.getElementById("commandBtn").onclick=openCommandPalette;
+document.getElementById("notificationBtn").onclick=openNotifications;
+
+const baseRenderV2=render;
+render=function(){baseRenderV2();updateAdvancedHeader()};
+ensureAdvancedState();
+
 setDate();updateLevelUI();render();
