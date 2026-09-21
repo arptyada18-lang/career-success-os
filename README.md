@@ -90,16 +90,36 @@ This version has no paid API, paid database or paid backend dependency. Data is 
 - Board moves recorded in activity history
 - V5 runtime cached for offline PWA use
 
+## Advanced V6 — implemented
+- Reports & Intelligence workspace
+- Weekly printable performance report
+- Monthly printable performance report
+- Activity history CSV export
+- Goals + forecast CSV export
+- Projects / internships / clients pipeline CSV export
+- Goal deadline pace forecasting
+- Required progress-per-day calculation
+- Recent progress pace tracking
+- Projected goal finish date when enough history exists
+- Goal risk classification with transparent rule-based reasoning
+- Best recorded productivity day analysis
+- Strongest weekday analysis
+- Weakest tracked task-category detection
+- Internship interview / offer signal
+- Client win-rate metric
+- Skill growth history snapshots
+- Goal progress history snapshots
+- V6 trend snapshots persisted in LocalStorage
+- V6 runtime cached for offline PWA use
+
 ## Planned next modules
-- V6: CSV export and printable weekly / monthly performance reports
-- V6: Goal forecast and deadline risk insights
-- V6: Best-day / weak-area productivity analysis
-- V6: Skill growth history and trend reporting
 - V7: Dashboard widget show/hide and ordering
 - V7: Calendar agenda view and event editing
-- V7: Accessibility pass, reduced-motion mode and stronger keyboard navigation
+- V7: Accessibility pass and stronger keyboard navigation
+- V7: Reduced-motion mode
 - V7: Data validation and corruption recovery
 - V7: Automated release / smoke checks
+- V7: Final mobile polish and release-quality QA
 - Optional future cloud sync and login only if multi-device access becomes necessary
 
 ## Run
