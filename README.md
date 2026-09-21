@@ -33,7 +33,19 @@ This version has no paid API, paid database or paid backend dependency. Data is 
 - Vanilla JavaScript (ES6+)
 - Browser LocalStorage
 
-## Planned advanced modules
+## Advanced V2 — implemented
+- Deadline radar
+- Monthly calendar for tasks and goals
+- Focus Mode with 15/25/45/60 minute sessions
+- Focus XP rewards and session stats
+- Notification center for overdue and upcoming work
+- Badge / milestone unlock system
+- Command palette with Ctrl/Cmd + K
+- Advanced career operating metrics
+- Due dates on new tasks
+- Automatic migration for existing LocalStorage data
+
+## Planned next modules
 - Calendar and deadlines
 - Focus mode / session timer
 - Notification center
