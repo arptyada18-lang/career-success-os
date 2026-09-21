@@ -45,6 +45,19 @@ This version has no paid API, paid database or paid backend dependency. Data is 
 - Due dates on new tasks
 - Automatic migration for existing LocalStorage data
 
+## Advanced V3 — implemented
+- Activity Log with action history
+- 84-day productivity heatmap
+- Weekly Performance Score
+- Seven-day habit history
+- Smart goal milestones with auto progress
+- Goal health / deadline risk indicator
+- Richer analytics and 7-day activity intensity
+- Theme customization: Midnight, Light, Ocean, Graphite
+- Activity-driven XP statistics
+- Achievement / badge activity recording
+- V3 data migration while preserving existing LocalStorage
+
 ## Planned next modules
 - Calendar and deadlines
 - Focus mode / session timer
