@@ -58,14 +58,31 @@ This version has no paid API, paid database or paid backend dependency. Data is 
 - Achievement / badge activity recording
 - V3 data migration while preserving existing LocalStorage
 
+## Advanced V4 — implemented
+- Installable PWA foundation
+- Offline asset caching with service worker
+- Smart Daily Planner with rule-based task ranking
+- Task effort estimates
+- Recurring tasks: Daily, Weekdays, Weekly
+- Automatic daily rollover
+- Editable and deletable tasks
+- Quick Capture Inbox
+- Inbox → task conversion
+- Local restore snapshots (up to 5)
+- Automatic backup before daily rollover
+- Install / offline controls in Settings
+- V4 schema migration while preserving existing LocalStorage
+
 ## Planned next modules
-- Calendar and deadlines
-- Focus mode / session timer
-- Notification center
-- Badge unlock system
-- richer charts and insights
-- global command palette
-- optional cloud sync / account layer in a future version
+- Full edit flows for goals, projects, internships, clients, content and learning
+- Drag-and-drop Kanban boards for projects / internships / clients
+- Calendar event editing and agenda view
+- Dashboard widget show/hide and ordering
+- Accessibility pass and reduced-motion mode
+- CSV export and printable weekly/monthly reports
+- Data validation and corruption recovery
+- Automated browser smoke tests / release checks
+- Optional cloud sync and login only if a future version needs multi-device access
 
 ## Run
 Open `index.html` locally or deploy the repository with GitHub Pages.
