@@ -73,16 +73,34 @@ This version has no paid API, paid database or paid backend dependency. Data is 
 - Install / offline controls in Settings
 - V4 schema migration while preserving existing LocalStorage
 
+## Advanced V5 — implemented
+- Full edit flows for goals and goal progress
+- Skill editing and deletion
+- Project editing, deletion and status management
+- Internship application editing and deletion
+- Client lead editing and deletion
+- Content tracker editing and deletion
+- LinkedIn activity editing and deletion
+- Learning / Study item editing and deletion
+- Career Boards workspace
+- Drag-and-drop Project Kanban
+- Drag-and-drop Internship Pipeline
+- Drag-and-drop Client CRM Pipeline
+- Mobile-friendly status dropdown fallback
+- Board moves recorded in activity history
+- V5 runtime cached for offline PWA use
+
 ## Planned next modules
-- Full edit flows for goals, projects, internships, clients, content and learning
-- Drag-and-drop Kanban boards for projects / internships / clients
-- Calendar event editing and agenda view
-- Dashboard widget show/hide and ordering
-- Accessibility pass and reduced-motion mode
-- CSV export and printable weekly/monthly reports
-- Data validation and corruption recovery
-- Automated browser smoke tests / release checks
-- Optional cloud sync and login only if a future version needs multi-device access
+- V6: CSV export and printable weekly / monthly performance reports
+- V6: Goal forecast and deadline risk insights
+- V6: Best-day / weak-area productivity analysis
+- V6: Skill growth history and trend reporting
+- V7: Dashboard widget show/hide and ordering
+- V7: Calendar agenda view and event editing
+- V7: Accessibility pass, reduced-motion mode and stronger keyboard navigation
+- V7: Data validation and corruption recovery
+- V7: Automated release / smoke checks
+- Optional future cloud sync and login only if multi-device access becomes necessary
 
 ## Run
 Open `index.html` locally or deploy the repository with GitHub Pages.
