@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <a class="skip-link" href="#mainContent">Skip to main content</a>
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
       <div class="brand">
@@ -18,7 +19,7 @@
         <div><strong>Career & Success OS</strong><span>Build. Track. Level up.</span></div>
       </div>
 
-      <nav class="nav" id="nav">
+      <nav class="nav" id="nav" aria-label="Primary navigation">
         <button class="nav-item active" data-view="dashboard">◈ <span>Dashboard</span></button>
         <button class="nav-item" data-view="today">✓ <span>Today</span></button>
         <button class="nav-item" data-view="inbox">⌑ <span>Quick Inbox</span></button>
@@ -53,7 +54,7 @@
       </div>
     </aside>
 
-    <main class="main">
+    <main class="main" id="mainContent" tabindex="-1">
       <header class="topbar">
         <div class="top-left">
           <button class="icon-btn mobile-only" id="menuBtn" aria-label="Open menu">☰</button>
@@ -100,12 +101,13 @@
     </form>
   </dialog>
 
-  <div id="toast" class="toast"></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script src="app.js"></script>
   <script src="v3.js"></script>
   <script src="v4.js"></script>
   <script src="v5.js"></script>
   <script src="v6.js"></script>
+  <script src="v7.js"></script>
 </body>
 </html>
