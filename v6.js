@@ -196,7 +196,7 @@
   bumpSkill=function(id,n){bumpSkillV6Base(id,n);snapshotTrends();save()};
   const renderV6Base=render;
   render=function(){
-    snapshotTrends();
+    snapshotTrends();save();
     if(currentView==="reports"){
       document.getElementById("viewTitle").textContent="Reports & Intelligence";
       document.getElementById("profileName").textContent=state.profile.name.split(" ")[0];
