@@ -112,15 +112,37 @@ This version has no paid API, paid database or paid backend dependency. Data is 
 - V6 trend snapshots persisted in LocalStorage
 - V6 runtime cached for offline PWA use
 
-## Planned next modules
-- V7: Dashboard widget show/hide and ordering
-- V7: Calendar agenda view and event editing
-- V7: Accessibility pass and stronger keyboard navigation
-- V7: Reduced-motion mode
-- V7: Data validation and corruption recovery
-- V7: Automated release / smoke checks
-- V7: Final mobile polish and release-quality QA
-- Optional future cloud sync and login only if multi-device access becomes necessary
+## Advanced V7 — implemented
+- Customizable dashboard widget visibility
+- Dashboard widget ordering controls
+- Resettable dashboard layout
+- Calendar Month / Agenda modes
+- Direct task / goal editing from agenda
+- Skip-to-main accessibility link
+- ARIA live status messaging
+- Strong focus-visible keyboard styling
+- Keyboard navigation shortcuts
+- Built-in shortcut help
+- Reduced-motion preference
+- Larger-text preference
+- Higher-contrast preference
+- Local data structure validation
+- Last-known-good recovery copy
+- Manual structure repair
+- Raw recovery JSON export
+- V7 offline PWA caching
+- Static release smoke test suite
+- GitHub Actions smoke-check workflow
+- Final V1–V7 syntax / integration verification
+
+## Future optional expansion
+- Multi-device cloud sync and login
+- Optional AI Career Coach with explicit API-cost controls
+- Calendar integrations
+- External job / internship integrations
+- Team or mentor sharing mode
+
+The core local-first Career & Success OS is now feature-complete through Advanced V7.
 
 ## Run
 Open `index.html` locally or deploy the repository with GitHub Pages.
