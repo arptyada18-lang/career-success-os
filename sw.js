@@ -1,5 +1,5 @@
-const CACHE="career-success-os-v4";
-const ASSETS=["./","./index.html","./style.css","./app.js","./v3.js","./v4.js","./manifest.json","./icon.svg"];
+const CACHE="career-success-os-v5";
+const ASSETS=["./","./index.html","./style.css","./app.js","./v3.js","./v4.js","./v5.js","./manifest.json","./icon.svg"];
 self.addEventListener("install",event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting())));
 self.addEventListener("activate",event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener("fetch",event=>{
